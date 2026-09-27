@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="A tray of eggs">
+  <title>A tray of eggs</title>
+  <rect width="600" height="600" fill="#e2eefc"/>
+  <ellipse cx="300" cy="500" rx="180" ry="22" fill="#000" opacity="0.07"/>
+  <g fill="#fef3c7" stroke="#fde68a" stroke-width="4">
+    <ellipse cx="228" cy="292" rx="46" ry="58"/>
+    <ellipse cx="300" cy="266" rx="46" ry="58"/>
+    <ellipse cx="372" cy="292" rx="46" ry="58"/>
+  </g>
+  <g fill="#fffbeb" opacity="0.8">
+    <ellipse cx="216" cy="276" rx="14" ry="20" transform="rotate(-20 216 276)"/>
+    <ellipse cx="288" cy="250" rx="14" ry="20" transform="rotate(-20 288 250)"/>
+    <ellipse cx="360" cy="276" rx="14" ry="20" transform="rotate(-20 360 276)"/>
+  </g>
+  <path d="M140 336h320v84a24 24 0 0 1-24 24H164a24 24 0 0 1-24-24z" fill="#9ca3af"/>
+  <path d="M140 336h160v108H164a24 24 0 0 1-24-24z" fill="#b6bcc6"/>
+  <g fill="#6b7280">
+    <circle cx="192" cy="384" r="14"/>
+    <circle cx="264" cy="384" r="14"/>
+    <circle cx="336" cy="384" r="14"/>
+    <circle cx="408" cy="384" r="14"/>
+  </g>
+</svg>

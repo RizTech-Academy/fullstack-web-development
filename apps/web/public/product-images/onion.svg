@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="A red onion">
+  <title>A red onion</title>
+  <rect width="600" height="600" fill="#e4f7e7"/>
+  <ellipse cx="300" cy="506" rx="120" ry="18" fill="#000" opacity="0.07"/>
+  <path d="M300 200c80 0 140 62 140 148 0 82-63 142-140 142s-140-60-140-142c0-86 60-148 140-148z" fill="#a855f7"/>
+  <path d="M300 200c-80 0-140 62-140 148 0 82 63 142 140 142-44-38-66-88-66-146s22-106 66-144z" fill="#c084fc"/>
+  <g stroke="#7e22ce" stroke-width="5" fill="none" opacity="0.55" stroke-linecap="round">
+    <path d="M300 206c-32 44-46 92-46 142s14 96 46 138"/>
+    <path d="M300 206c32 44 46 92 46 142s-14 96-46 138"/>
+    <path d="M232 240c-18 42-24 80-24 110s8 66 24 102"/>
+    <path d="M368 240c18 42 24 80 24 110s-8 66-24 102"/>
+  </g>
+  <path d="M300 204c-6-30-2-58 10-82 8 26 8 54-2 82z" fill="#84cc16"/>
+  <path d="M300 204c-14-24-32-40-54-48 6 26 24 44 54 48z" fill="#a3e635"/>
+</svg>

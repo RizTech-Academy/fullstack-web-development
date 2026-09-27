@@ -1,11 +1,19 @@
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import cookieParser from "cookie-parser";
+
 import { AppModule } from "./app.module";
+import { ApiExceptionFilter } from "./common/api-exception.filter";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix("api");
+
+  // Both the session and the anonymous cart live in cookies, and Express does
+  // not parse them without this. Without it `request.cookies` is undefined and
+  // every signed-in user looks anonymous — with no error anywhere.
+  app.use(cookieParser());
 
   app.enableCors({
     origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
@@ -23,6 +31,9 @@ async function bootstrap(): Promise<void> {
       // @Transform decorators, so ?inStock=false would arrive as true.
     }),
   );
+
+  // One error shape for the whole API, so the front end has one code path.
+  app.useGlobalFilters(new ApiExceptionFilter());
 
   await app.listen(process.env.PORT ?? 3001);
 }

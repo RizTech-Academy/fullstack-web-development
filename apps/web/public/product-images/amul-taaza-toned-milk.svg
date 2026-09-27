@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="A tetra pak of toned milk">
+  <title>A tetra pak of toned milk</title>
+  <rect width="600" height="600" fill="#e2eefc"/>
+  <ellipse cx="300" cy="512" rx="130" ry="20" fill="#000" opacity="0.07"/>
+  <path d="M212 200h176v300a20 20 0 0 1-20 20H232a20 20 0 0 1-20-20z" fill="#e5e7eb"/>
+  <path d="M212 200h88v320h-68a20 20 0 0 1-20-20z" fill="#f9fafb"/>
+  <path d="M212 200l44-70h88l44 70z" fill="#d1d5db"/>
+  <path d="M256 130h44v70h-88z" fill="#e5e7eb"/>
+  <rect x="270" y="112" width="60" height="26" rx="8" fill="#2563eb"/>
+  <rect x="212" y="290" width="176" height="120" fill="#2563eb"/>
+  <g fill="#eff6ff">
+    <rect x="240" y="316" width="120" height="14" rx="7"/>
+    <rect x="258" y="344" width="84" height="12" rx="6"/>
+    <rect x="272" y="370" width="56" height="10" rx="5"/>
+  </g>
+  <path d="M212 452h176v20H212z" fill="#93c5fd"/>
+</svg>

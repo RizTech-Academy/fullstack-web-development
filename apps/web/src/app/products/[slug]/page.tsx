@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ProductImage } from "@/components/product-image";
 import { VariantPicker } from "@/components/variant-picker";
 import { ApiError, fetchProduct } from "@/lib/api";
 
@@ -65,20 +65,15 @@ export default async function ProductPage({ params }: { params: Params }) {
 
       <div className="grid gap-8 md:grid-cols-2">
         <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              sizes="(max-width: 768px) 100vw, 480px"
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-6xl text-gray-400">
-              {product.name.slice(0, 1)}
-            </div>
-          )}
+          <ProductImage
+            src={product.imageUrl}
+            alt={product.name}
+            sizes="(max-width: 768px) 100vw, 480px"
+            // The largest thing on the page and the reason somebody opened it,
+            // so it is loaded eagerly rather than waiting its turn.
+            priority
+            fallback={product.name.slice(0, 1)}
+          />
         </div>
 
         <div>

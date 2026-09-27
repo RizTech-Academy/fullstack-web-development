@@ -6,6 +6,7 @@
 //   docs/decisions/0003-cart-in-database-not-cookie.md
 //   docs/decisions/0004-decrement-stock-at-order-placement.md
 //   docs/decisions/0006-soft-delete-products.md
+//   docs/decisions/0013-conditional-updates-instead-of-read-then-write.md
 
 generator client {
   provider = "prisma-client-js"
@@ -203,9 +204,32 @@ model DeliverySlot {
   isActive  Boolean @default(true)
   sortOrder Int     @default(0)
 
-  orders Order[]
+  orders   Order[]
+  bookings SlotBooking[]
 
   @@map("delivery_slots")
+}
+
+// One row per slot per date, created on the day's first order.
+//
+// Counting orders to find out how full a slot is looks simpler and cannot be
+// made safe: two checkouts both count 19 of 20 and both proceed. A counter that
+// is incremented with the capacity in the WHERE clause can only ever reach the
+// capacity — see decision 0013.
+model SlotBooking {
+  id       String       @id @default(cuid())
+  slotId   String
+  slot     DeliverySlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  // A DATE, not a timestamp. A delivery on the 28th must not become the 27th
+  // because the server runs in UTC.
+  date     DateTime     @db.Date
+  booked   Int          @default(0)
+  // Copied from the slot so a later capacity change cannot retroactively
+  // overbook a day that is already full.
+  capacity Int
+
+  @@unique([slotId, date])
+  @@map("slot_bookings")
 }
 
 model Order {
@@ -228,9 +252,11 @@ model Order {
   deliveryCity     String
   deliveryPincode  String
 
-  slotId    String?
-  slot      DeliverySlot? @relation(fields: [slotId], references: [id])
-  slotDate  DateTime?
+  slotId String?
+  slot   DeliverySlot? @relation(fields: [slotId], references: [id])
+  // A DATE, like SlotBooking.date. A delivery is on a day, not at an instant,
+  // and a timestamp here invited the timezone bug that stored it a day early.
+  slotDate  DateTime? @db.Date
   slotLabel String?
 
   subtotalPaise Int

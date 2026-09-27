@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { VariantSummary } from "@kirana/shared";
 
+import { AddToCart } from "./add-to-cart";
 import { Price } from "./price";
 
 /**
@@ -59,6 +60,10 @@ export function VariantPicker({ variants }: { variants: VariantSummary[] }) {
           Out of stock. The shop restocks most mornings.
         </p>
       )}
+
+      {/* Keyed on the variant, so switching pack size clears the "Added ✓"
+          state rather than claiming the new size is already in the cart. */}
+      <AddToCart key={selected.id} variantId={selected.id} disabled={!selected.inStock} />
     </div>
   );
 }

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="A pack of detergent powder">
+  <title>A pack of detergent powder</title>
+  <rect width="600" height="600" fill="#eee9fb"/>
+  <ellipse cx="300" cy="512" rx="150" ry="20" fill="#000" opacity="0.07"/>
+  <path d="M180 190h240v300a20 20 0 0 1-20 20H200a20 20 0 0 1-20-20z" fill="#7c3aed"/>
+  <path d="M180 190h110v320H200a20 20 0 0 1-20-20z" fill="#8b5cf6"/>
+  <path d="M180 190c30-20 70-30 120-30s90 10 120 30c-30 14-70 22-120 22s-90-8-120-22z" fill="#a78bfa"/>
+  <rect x="212" y="262" width="176" height="128" rx="10" fill="#f5f3ff"/>
+  <g fill="#6d28d9">
+    <rect x="240" y="288" width="120" height="16" rx="8"/>
+    <rect x="262" y="318" width="76" height="12" rx="6"/>
+  </g>
+  <g fill="#c4b5fd">
+    <circle cx="268" cy="358" r="12"/>
+    <circle cx="300" cy="352" r="16"/>
+    <circle cx="334" cy="358" r="12"/>
+  </g>
+  <g fill="#ede9fe" opacity="0.9">
+    <circle cx="430" cy="236" r="18"/>
+    <circle cx="462" cy="280" r="12"/>
+    <circle cx="418" cy="292" r="9"/>
+  </g>
+</svg>

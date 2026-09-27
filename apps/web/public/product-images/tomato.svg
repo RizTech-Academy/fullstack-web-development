@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="A ripe tomato">
+  <title>A ripe tomato</title>
+  <rect width="600" height="600" fill="#e4f7e7"/>
+  <ellipse cx="300" cy="506" rx="130" ry="20" fill="#000" opacity="0.07"/>
+  <circle cx="300" cy="330" r="150" fill="#dc2626"/>
+  <path d="M300 180c-83 0-150 67-150 150 0 41 16 78 43 105-9-22-13-45-13-70 0-83 67-150 150-150 25 0 48 6 70 17-27-33-67-52-100-52z" fill="#ef4444"/>
+  <ellipse cx="248" cy="286" rx="30" ry="20" fill="#fca5a5" opacity="0.6" transform="rotate(-30 248 286)"/>
+  <g fill="#16a34a">
+    <path d="M300 168c10 0 18 8 18 18s-8 18-18 18-18-8-18-18 8-18 18-18z"/>
+    <path d="M300 190c-6-26-28-44-56-44 4 28 26 48 56 44z"/>
+    <path d="M300 190c6-26 28-44 56-44-4 28-26 48-56 44z"/>
+    <path d="M300 190c-22-16-48-16-70 0 20 18 48 18 70 0z"/>
+    <path d="M300 190c22-16 48-16 70 0-20 18-48 18-70 0z"/>
+  </g>
+  <rect x="292" y="126" width="16" height="44" rx="8" fill="#15803d"/>
+</svg>
