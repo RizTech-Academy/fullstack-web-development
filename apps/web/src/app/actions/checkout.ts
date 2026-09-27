@@ -48,5 +48,12 @@ export async function placeOrder(
   }
 
   revalidatePath("/", "layout");
-  redirect(`/orders/${order.orderNumber}`);
+
+  // An online order is not a sale yet — it is PENDING_PAYMENT and holding
+  // stock. Send them to pay. Cash on delivery is already PLACED.
+  redirect(
+    order.status === "PENDING_PAYMENT"
+      ? `/pay/${order.orderNumber}`
+      : `/orders/${order.orderNumber}`,
+  );
 }

@@ -1,7 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "./src"
+    "rootDir": "./src",
+    // Inside dist, deliberately.
+    //
+    // `nest build` deletes dist and then runs an incremental tsc. With the
+    // build info anywhere else, tsc compares against it, concludes nothing has
+    // changed, and emits nothing — leaving no dist/main.js and an error that
+    // says "Cannot find module dist/main" with no hint why.
+    //
+    // Putting it in dist means deleting dist deletes it too.
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "prisma", "test", "**/*.spec.ts"]

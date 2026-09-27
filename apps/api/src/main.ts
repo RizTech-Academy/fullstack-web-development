@@ -6,7 +6,12 @@ import { AppModule } from "./app.module";
 import { ApiExceptionFilter } from "./common/api-exception.filter";
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    // Keeps the unparsed bytes on `request.rawBody`. A webhook signature is
+    // computed over exactly what was sent, and re-serialising a parsed body
+    // produces different bytes and a signature that never matches.
+    rawBody: true,
+  });
 
   app.setGlobalPrefix("api");
 

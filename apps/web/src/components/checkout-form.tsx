@@ -139,9 +139,9 @@ export function CheckoutForm({
             <input type="radio" name="paymentMethod" value="CASH_ON_DELIVERY" defaultChecked />
             Cash on delivery
           </label>
-          <label className="flex items-center gap-2 text-sm text-gray-500">
-            <input type="radio" name="paymentMethod" value="ONLINE" disabled />
-            Pay online — added in module 14
+          <label className="flex items-center gap-2 text-sm">
+            <input type="radio" name="paymentMethod" value="ONLINE" />
+            Pay online
           </label>
         </fieldset>
       </div>

@@ -24,6 +24,7 @@ module added.
 | `module-11-catalogue` | 11 · Catalogue and search | catalogue API, storefront, product pages, search and filters |
 | `module-12-cart` | 12 · Cart and checkout | cart, stock, sign-in, delivery slots, checkout, orders |
 | `module-13-orders` | 13 · Orders and admin | the order state machine, history, the shop's admin area, inventory |
+| `module-14-payments` | 14 · Payments | intents, signed webhooks, idempotency, refunds, expiring unpaid orders |
 
 Branches are added as the course is written. To see what a module changed:
 
@@ -76,6 +77,7 @@ control.
                 delivery/     slots and their capacity
                 notifications/ where "we told the customer" happens
                 orders/       history, the state machine, cancellation
+                payments/     the gateway seam, webhooks, refunds
                 products/     catalogue endpoints
                 categories/
                 common/       the one error shape everything returns
@@ -110,6 +112,7 @@ control.
 | [0012](docs/decisions/0012-no-loading-boundary-above-notfound.md) | No loading boundary above a route that can 404 |
 | [0013](docs/decisions/0013-conditional-updates-instead-of-read-then-write.md) | Stock and slots are claimed with a conditional UPDATE, never read-then-write |
 | [0014](docs/decisions/0014-order-status-is-a-state-machine.md) | An order's status is a state machine, written down once |
+| [0015](docs/decisions/0015-only-a-webhook-may-mark-an-order-paid.md) | Only a signed webhook may mark an order paid |
 
 If something here looks like a mistake, check `docs/decisions/` before changing
 it. Most of the surprising parts are deliberate.

@@ -6,7 +6,10 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "module": "CommonJS",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    // See apps/api/tsconfig.build.json — keeping the build info inside dist
+    // means removing dist cannot leave a stale one behind.
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "include": ["src"]
 }
