@@ -1,0 +1,292 @@
+// Kirana Store schema.
+//
+// Decisions worth reading before changing anything here:
+//   docs/decisions/0001-money-as-integer-paise.md
+//   docs/decisions/0002-snapshot-product-details-on-orders.md
+//   docs/decisions/0003-cart-in-database-not-cookie.md
+//   docs/decisions/0006-soft-delete-products.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------- catalogue
+
+enum Unit {
+  GRAM
+  KILOGRAM
+  MILLILITRE
+  LITRE
+  PIECE
+  PACKET
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String
+  sortOrder Int       @default(0)
+  products  Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  name        String
+  brand       String?
+  description String?
+  imageUrl    String?
+  isActive    Boolean @default(true)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  variants Variant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId, isActive])
+  @@index([isActive, name])
+  @@map("products")
+}
+
+model Variant {
+  id         String  @id @default(cuid())
+  sku        String  @unique
+  label      String
+  unit       Unit
+  quantity   Decimal @db.Decimal(10, 3)
+  pricePaise Int
+  mrpPaise   Int?
+  stock      Int     @default(0)
+  isActive   Boolean @default(true)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId, isActive])
+  @@map("variants")
+}
+
+// ------------------------------------------------------------ users & auth
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         Role     @default(CUSTOMER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  addresses     Address[]
+  carts         Cart[]
+  orders        Order[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Address {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label     String?
+  line1     String
+  line2     String?
+  landmark  String?
+  city      String  @default("Pune")
+  pincode   String
+  isDefault Boolean @default(false)
+
+  orders Order[]
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+// ------------------------------------------------------------------- cart
+
+model Cart {
+  id        String  @id @default(cuid())
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId String? @unique
+
+  items CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("carts")
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity  Int
+
+  addedAt DateTime @default(now())
+
+  @@unique([cartId, variantId])
+  @@map("cart_items")
+}
+
+// ----------------------------------------------------------------- orders
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PLACED
+  PACKED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  ONLINE
+  CASH_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+model DeliverySlot {
+  id        String  @id @default(cuid())
+  label     String
+  startHour Int
+  endHour   Int
+  capacity  Int     @default(20)
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  orders Order[]
+
+  @@map("delivery_slots")
+}
+
+model Order {
+  id          String @id @default(cuid())
+  orderNumber String @unique
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+
+  status        OrderStatus   @default(PENDING_PAYMENT)
+  paymentMethod PaymentMethod
+
+  // Snapshot of the delivery address — see decision 0002.
+  addressId        String?
+  address          Address? @relation(fields: [addressId], references: [id])
+  deliveryName     String
+  deliveryPhone    String
+  deliveryLine1    String
+  deliveryLine2    String?
+  deliveryLandmark String?
+  deliveryCity     String
+  deliveryPincode  String
+
+  slotId    String?
+  slot      DeliverySlot? @relation(fields: [slotId], references: [id])
+  slotDate  DateTime?
+  slotLabel String?
+
+  subtotalPaise Int
+  deliveryPaise Int
+  totalPaise    Int
+
+  items    OrderItem[]
+  payments Payment[]
+
+  placedAt    DateTime?
+  packedAt    DateTime?
+  deliveredAt DateTime?
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Kept for reporting only. Nothing that renders an order reads through it,
+  // and it must never cascade — see decision 0002.
+  variantId String?
+  variant   Variant? @relation(fields: [variantId], references: [id])
+
+  productName    String
+  variantLabel   String
+  sku            String
+  unitPricePaise Int
+  quantity       Int
+  linePaise      Int
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model Payment {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  provider    String
+  providerRef String?       @unique
+  amountPaise Int
+  status      PaymentStatus @default(PENDING)
+
+  idempotencyKey String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@map("payments")
+}

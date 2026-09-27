@@ -1,0 +1,17 @@
+{
+  "name": "@kirana/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "migrate": "prisma migrate dev",
+    "generate": "prisma generate",
+    "studio": "prisma studio",
+    "validate": "prisma validate"
+  },
+  "devDependencies": {
+    "prisma": "^5.20.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.20.0"
+  }
+}
