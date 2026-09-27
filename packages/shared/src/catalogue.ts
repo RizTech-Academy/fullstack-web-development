@@ -18,6 +18,8 @@ export interface VariantSummary {
   sku: string;
   label: string;
   unit: Unit;
+  /** In the smallest sensible unit: grams, millilitres or pieces. */
+  quantity: number;
   pricePaise: Paise;
   mrpPaise: Paise | null;
   /**
@@ -41,4 +43,36 @@ export interface ProductSummary {
 export interface ProductDetail extends ProductSummary {
   description: string | null;
   variants: VariantSummary[];
+}
+
+export interface CategoryOption {
+  slug: string;
+  name: string;
+  productCount: number;
+}
+
+/**
+ * Price per kilogram, litre or piece, so a customer can compare pack sizes.
+ *
+ * Only correct because every variant stores its quantity in the smallest
+ * sensible unit. Mixing grams and kilograms across products would make this
+ * silently wrong.
+ */
+export function pricePerUnit(variant: {
+  pricePaise: Paise;
+  quantity: number;
+  unit: Unit;
+}): { paise: Paise; unit: string } | null {
+  if (variant.quantity <= 0) return null;
+
+  switch (variant.unit) {
+    case "GRAM":
+      return { paise: Math.round((variant.pricePaise / variant.quantity) * 1000), unit: "kg" };
+    case "MILLILITRE":
+      return { paise: Math.round((variant.pricePaise / variant.quantity) * 1000), unit: "L" };
+    case "PIECE":
+      return { paise: Math.round(variant.pricePaise / variant.quantity), unit: "piece" };
+    default:
+      return null;
+  }
 }

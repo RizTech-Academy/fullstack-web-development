@@ -1,12 +1,19 @@
 {
   "name": "kirana-store",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
+    "build:shared": "npm run build --workspace=packages/shared",
     "dev:web": "npm run dev --workspace=apps/web",
-    "dev:api": "npm run start:dev --workspace=apps/api",
+    "dev:api": "npm run build:shared && npm run start:dev --workspace=apps/api",
+    "build": "npm run build:shared && npm run build --workspace=apps/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "db:up": "docker compose up -d",
     "db:migrate": "npm run migrate --workspace=apps/api",
+    "db:seed": "npm run seed --workspace=apps/api",
     "db:studio": "npm run studio --workspace=apps/api"
   }
 }
