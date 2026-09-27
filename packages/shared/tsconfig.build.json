@@ -11,5 +11,6 @@
     // means removing dist cannot leave a stale one behind.
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
 }

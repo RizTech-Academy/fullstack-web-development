@@ -14,6 +14,11 @@
     "db:up": "docker compose up -d",
     "db:migrate": "npm run migrate --workspace=apps/api",
     "db:seed": "npm run seed --workspace=apps/api",
-    "db:studio": "npm run studio --workspace=apps/api"
+    "db:studio": "npm run studio --workspace=apps/api",
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run test:e2e --workspace=apps/api && npm run test:e2e --workspace=apps/web"
+  },
+  "devDependencies": {
+    "wait-on": "^8.0.1"
   }
 }

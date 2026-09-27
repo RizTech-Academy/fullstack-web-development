@@ -25,6 +25,7 @@ module added.
 | `module-12-cart` | 12 · Cart and checkout | cart, stock, sign-in, delivery slots, checkout, orders |
 | `module-13-orders` | 13 · Orders and admin | the order state machine, history, the shop's admin area, inventory |
 | `module-14-payments` | 14 · Payments | intents, signed webhooks, idempotency, refunds, expiring unpaid orders |
+| `module-15-testing` | 15 · Testing | unit, API end-to-end, component and Playwright tests, and CI |
 
 Branches are added as the course is written. To see what a module changed:
 
@@ -48,6 +49,16 @@ Then:
 
     npm run dev:api     # http://localhost:3001/api
     npm run dev:web     # http://localhost:3000
+
+## Tests
+
+    npm run test                          # unit and component, every workspace
+    npm run test:e2e --workspace=apps/api # API against a real PostgreSQL
+    npm run test:e2e --workspace=apps/web # Playwright, needs both servers up
+
+The end-to-end suites expect a seeded database (`npm run db:seed`). They buy
+real stock, so they run one at a time — `workers: 1` and `fileParallelism:
+false` are deliberate, not leftovers.
 
 The seed creates two accounts and prints both when it runs: a customer, and the
 shopkeeper, who can reach `/admin`. They are development accounts — the

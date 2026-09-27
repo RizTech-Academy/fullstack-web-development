@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # A real PostgreSQL, not a mock. The tests that matter here are the ones
+    # that depend on what the database actually does — a row lock, a unique
+    # index, a DATE column — and none of that survives being faked.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: kirana
+          POSTGRES_PASSWORD: localdev
+          POSTGRES_DB: kirana
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U kirana"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://kirana:localdev@localhost:5432/kirana
+      JWT_SECRET: a-ci-only-secret-that-is-long-enough-to-pass
+      PAYMENT_WEBHOOK_SECRET: a-ci-only-webhook-secret
+      PAYMENT_PUBLIC_KEY: kirana_test_key
+      API_URL: http://localhost:3001/api
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
+      CORS_ORIGIN: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # `npm ci` and not `npm install`: it installs exactly what the lockfile
+      # says, so a green build cannot depend on a version nobody chose.
+      - run: npm ci
+
+      - run: npm run build:shared
+      - run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+      - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+
+      # Cheapest first. A type error should not wait behind a browser
+      # download, and a failing unit test should not wait behind a migration.
+      - run: npm run typecheck
+      - run: npm run test
+
+      - run: npm run db:seed
+      - run: npm run test:e2e --workspace=apps/api
+
+      - run: npm run build --workspace=apps/api
+      - run: npm run build --workspace=apps/web
+
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+
+      - name: Start the application
+        run: |
+          npm run start --workspace=apps/api &
+          npm run start --workspace=apps/web &
+          npx wait-on http://localhost:3001/api/categories http://localhost:3000/products
+
+      - run: npm run test:e2e --workspace=apps/web
+
+      # The trace is the only thing that explains a failure that does not
+      # reproduce locally, so keep it — but only for failures.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7

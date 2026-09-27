@@ -11,3 +11,6 @@ build/
 coverage/
 packages/shared/dist/
 *.tsbuildinfo
+test-results/
+playwright-report/
+.playwright/
