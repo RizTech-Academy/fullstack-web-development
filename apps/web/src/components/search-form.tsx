@@ -14,7 +14,7 @@ export function SearchForm({ params }: { params: RawSearchParams }) {
   const sort = readString(params, "sort");
 
   return (
-    <form action="/" method="get" className="flex gap-2">
+    <form action="/products" method="get" className="flex gap-2">
       {/* Submitting resets to page 1, which is what a new search should do. */}
       {category && <input type="hidden" name="category" value={category} />}
       {sort && <input type="hidden" name="sort" value={sort} />}

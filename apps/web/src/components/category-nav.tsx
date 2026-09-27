@@ -22,7 +22,7 @@ export function CategoryNav({
     if (q) next.set("q", q);
     if (slug) next.set("category", slug);
     const encoded = next.toString();
-    return encoded ? `/?${encoded}` : "/";
+    return encoded ? `/products?${encoded}` : "/products";
   };
 
   const chip = (isActive: boolean) =>

@@ -25,12 +25,23 @@ storefront accumulates thousands of URLs that look like products and are not.
 
 ## Decision
 
-The storefront lives in a `(storefront)` route group with its own `loading.tsx`,
-so the boundary covers `/` and nothing else.
+**No `loading.tsx` anywhere above a route that can call `notFound()`.**
 
-`/products/[slug]` has **no loading boundary above it**. It makes one request,
-so there is little to wait for, and a correct status code is worth more than a
-skeleton.
+The listing still streams, using a `<Suspense>` written *inside*
+`(shop)/products/page.tsx`. That is the distinction that matters:
+
+| | what it wraps |
+|---|---|
+| `loading.tsx` in a segment | that segment **and every route below it** |
+| `<Suspense>` inside a page | only that page's own content |
+
+`(shop)/products/loading.tsx` therefore covered `(shop)/products/[slug]` too,
+which is how the product page lost its status code. The `<Suspense>` inside the
+listing page does not reach the detail route at all, so both stream and both
+answer correctly.
+
+`error.tsx` is fine to keep: it swaps in content after something has thrown, and
+does not flush the response early.
 
 ## Consequences
 
@@ -40,3 +51,5 @@ skeleton.
 - A route that genuinely needs streaming *and* can 404 must decide the 404
   before it suspends — fetch the record above the boundary, and stream only the
   parts that cannot fail.
+- The `<Suspense>` in the listing is keyed on the search params, so changing a
+  filter shows the skeleton again instead of leaving stale results on screen.

@@ -54,11 +54,11 @@ export default async function ProductPage({ params }: { params: Params }) {
   return (
     <div className="space-y-6">
       <nav className="text-sm text-gray-500">
-        <Link href="/" className="underline">
+        <Link href="/products" className="underline">
           Shop
         </Link>
         {" / "}
-        <Link href={`/?category=${product.category.slug}`} className="underline">
+        <Link href={`/products?category=${product.category.slug}`} className="underline">
           {product.category.name}
         </Link>
       </nav>

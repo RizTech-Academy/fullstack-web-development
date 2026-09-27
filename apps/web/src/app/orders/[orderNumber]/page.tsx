@@ -102,7 +102,7 @@ export default async function OrderPage({ params }: { params: Params }) {
         </address>
       </section>
 
-      <Link href="/" className="inline-block text-sm underline">
+      <Link href="/products" className="inline-block text-sm underline">
         Back to the shop
       </Link>
     </div>

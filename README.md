@@ -78,7 +78,8 @@ control.
             prisma/           schema, migrations, seed
         web/        Next.js — storefront and admin
             src/
-                app/          routes, plus app/actions/ — the server actions
+                app/          routes: (shop)/products, cart, checkout,
+                              account, orders — plus app/actions/
                 components/
                 lib/          the typed API client
             public/

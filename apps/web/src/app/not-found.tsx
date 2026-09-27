@@ -7,7 +7,7 @@ export default function NotFound() {
       <p className="mt-2 text-sm text-gray-500">
         The product may have been taken off the shelf.
       </p>
-      <Link href="/" className="mt-4 inline-block text-sm underline">
+      <Link href="/products" className="mt-4 inline-block text-sm underline">
         Back to the shop
       </Link>
     </div>

@@ -23,7 +23,7 @@ export function Pagination<T>({
     }
     if (page > 1) next.set("page", String(page));
     const encoded = next.toString();
-    return encoded ? `/?${encoded}` : "/";
+    return encoded ? `/products?${encoded}` : "/products";
   };
 
   const button =

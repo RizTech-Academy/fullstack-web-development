@@ -13,5 +13,5 @@
  */
 export function safeNextParam(raw: string | string[] | undefined): string {
   const value = Array.isArray(raw) ? raw[0] : raw;
-  return value && /^\/(?!\/)/.test(value) ? value : "/";
+  return value && /^\/(?!\/)/.test(value) ? value : "/products";
 }

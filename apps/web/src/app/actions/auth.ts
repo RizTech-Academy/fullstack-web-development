@@ -94,5 +94,5 @@ export async function logout(): Promise<void> {
     // leave, so do not show them an error about it.
   }
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/products");
 }
