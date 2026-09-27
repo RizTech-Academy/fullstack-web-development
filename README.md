@@ -23,6 +23,7 @@ module added.
 | `module-10-planning` | 10 · Planning | scaffold, schema, shared types, decisions |
 | `module-11-catalogue` | 11 · Catalogue and search | catalogue API, storefront, product pages, search and filters |
 | `module-12-cart` | 12 · Cart and checkout | cart, stock, sign-in, delivery slots, checkout, orders |
+| `module-13-orders` | 13 · Orders and admin | the order state machine, history, the shop's admin area, inventory |
 
 Branches are added as the course is written. To see what a module changed:
 
@@ -47,9 +48,10 @@ Then:
     npm run dev:api     # http://localhost:3001/api
     npm run dev:web     # http://localhost:3000
 
-The seed creates a customer you can sign in as, and prints the details when it
-runs. It is a development account: the password is in `prisma/seed.ts` in plain
-sight, which is exactly why the seed refuses to run with `NODE_ENV=production`.
+The seed creates two accounts and prints both when it runs: a customer, and the
+shopkeeper, who can reach `/admin`. They are development accounts — the
+passwords are in `prisma/seed.ts` in plain sight, which is exactly why the seed
+refuses to run with `NODE_ENV=production`.
 
 ## Product pictures
 
@@ -67,10 +69,13 @@ control.
     apps/
         api/        NestJS — catalogue, cart, orders, auth
             src/
-                auth/         registration, sign-in, the session cookie
+                admin/        the shop owner's endpoints
+                auth/         registration, sign-in, roles, the session cookie
                 cart/         the cart, anonymous and signed in
                 checkout/     placing an order
                 delivery/     slots and their capacity
+                notifications/ where "we told the customer" happens
+                orders/       history, the state machine, cancellation
                 products/     catalogue endpoints
                 categories/
                 common/       the one error shape everything returns
@@ -104,6 +109,7 @@ control.
 | [0011](docs/decisions/0011-no-implicit-conversion-in-validation-pipe.md) | The validation pipe does no implicit conversion |
 | [0012](docs/decisions/0012-no-loading-boundary-above-notfound.md) | No loading boundary above a route that can 404 |
 | [0013](docs/decisions/0013-conditional-updates-instead-of-read-then-write.md) | Stock and slots are claimed with a conditional UPDATE, never read-then-write |
+| [0014](docs/decisions/0014-order-status-is-a-state-machine.md) | An order's status is a state machine, written down once |
 
 If something here looks like a mistake, check `docs/decisions/` before changing
 it. Most of the surprising parts are deliberate.

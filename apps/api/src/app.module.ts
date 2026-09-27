@@ -1,11 +1,14 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
+import { AdminModule } from "./admin/admin.module";
 import { AuthModule } from "./auth/auth.module";
 import { CartModule } from "./cart/cart.module";
 import { CategoriesModule } from "./categories/categories.module";
 import { CheckoutModule } from "./checkout/checkout.module";
 import { DeliveryModule } from "./delivery/delivery.module";
+import { NotificationsModule } from "./notifications/notifications.module";
+import { OrdersModule } from "./orders/orders.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ProductsModule } from "./products/products.module";
 
@@ -13,6 +16,7 @@ import { ProductsModule } from "./products/products.module";
   imports: [
     ConfigModule.forRoot({ isGlobal: true, cache: true }),
     PrismaModule,
+    NotificationsModule,
     // AuthModule applies the session middleware to every route itself. It has
     // to: middleware is instantiated in the module that calls `forRoutes`, and
     // only AuthModule imports JwtModule.
@@ -22,6 +26,8 @@ import { ProductsModule } from "./products/products.module";
     CartModule,
     DeliveryModule,
     CheckoutModule,
+    OrdersModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

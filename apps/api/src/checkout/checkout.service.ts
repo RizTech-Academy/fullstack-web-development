@@ -6,12 +6,14 @@ import {
   cartTotals,
   normalisePhone,
   parseIsoDate,
+  utcIsoDate,
   type OrderDetail,
 } from "@kirana/shared";
 
 import { AppException } from "../common/app-exception";
 import { PrismaService } from "../prisma/prisma.service";
-import { toOrderDetail, ORDER_INCLUDE } from "./order.mapper";
+import { NotificationsService } from "../notifications/notifications.service";
+import { ORDER_INCLUDE, toOrderDetail } from "../orders/order.mapper";
 import { generateOrderNumber } from "./order-number";
 import type { CheckoutDto } from "./dto/checkout.dto";
 
@@ -19,7 +21,10 @@ import type { CheckoutDto } from "./dto/checkout.dto";
 export class CheckoutService {
   private readonly logger = new Logger(CheckoutService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async placeOrder(userId: string, dto: CheckoutDto): Promise<OrderDetail> {
     const phone = normalisePhone(dto.phone);
@@ -49,7 +54,7 @@ export class CheckoutService {
      * claimed with the same conditional-update trick. Only then is the order
      * written and the cart emptied.
      */
-    return this.prisma.$transaction(async (tx) => {
+    const placed = await this.prisma.$transaction(async (tx) => {
       const cart = await tx.cart.findFirst({
         where: { userId },
         include: { items: { include: { variant: { include: { product: true } } } } },
@@ -100,6 +105,16 @@ export class CheckoutService {
           totalPaise: totals.totalPaise,
 
           items: { create: lines },
+          // The first entry in the audit trail, written with the order it
+          // describes. An order whose history starts at its second status is
+          // an order nobody can reconstruct.
+          events: {
+            create: {
+              status: dto.paymentMethod === "CASH_ON_DELIVERY" ? "PLACED" : "PENDING_PAYMENT",
+              note: "Order placed",
+              byUserId: userId,
+            },
+          },
         },
         include: ORDER_INCLUDE,
       });
@@ -124,24 +139,21 @@ export class CheckoutService {
       }
 
       this.logger.log(`Order ${order.orderNumber} placed for user ${userId}`);
-      return toOrderDetail(order);
-    });
-  }
-
-  async findForUser(userId: string, orderNumber: string): Promise<OrderDetail> {
-    const order = await this.prisma.order.findFirst({
-      // Both conditions, always. `findUnique({ orderNumber })` followed by an
-      // ownership check in an `if` is the same query with one more chance to
-      // forget the check.
-      where: { orderNumber, userId },
-      include: ORDER_INCLUDE,
+      return order;
     });
 
-    // The same 404 whether the order does not exist or belongs to somebody
-    // else. A 403 here would confirm that the number is real.
-    if (!order) throw AppException.notFound("No such order.");
+    // After the commit, never inside it. The transaction can still abort at
+    // this point had we not left it; an SMS cannot be unsent.
+    await this.notifications.orderStatusChanged({
+      orderNumber: placed.orderNumber,
+      status: placed.status,
+      customerName: placed.deliveryName,
+      phone: placed.deliveryPhone,
+      slotLabel: placed.slotLabel,
+      slotDate: placed.slotDate ? utcIsoDate(placed.slotDate) : null,
+    });
 
-    return toOrderDetail(order);
+    return toOrderDetail(placed);
   }
 
   /**

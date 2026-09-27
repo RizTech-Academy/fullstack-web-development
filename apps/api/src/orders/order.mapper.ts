@@ -1,11 +1,19 @@
 import type { Prisma } from "@prisma/client";
-import { utcIsoDate, type OrderDetail } from "@kirana/shared";
+import {
+  customerCanCancel,
+  utcIsoDate,
+  type OrderDetail,
+  type OrderSummary,
+} from "@kirana/shared";
 
-export const ORDER_INCLUDE = { items: true } as const;
+export const ORDER_INCLUDE = {
+  items: true,
+  events: { orderBy: { createdAt: "asc" } },
+} as const satisfies Prisma.OrderInclude;
 
 export type OrderRow = Prisma.OrderGetPayload<{ include: typeof ORDER_INCLUDE }>;
 
-export function toOrderDetail(row: OrderRow): OrderDetail {
+export function toOrderSummary(row: OrderRow): OrderSummary {
   return {
     orderNumber: row.orderNumber,
     status: row.status,
@@ -19,6 +27,12 @@ export function toOrderDetail(row: OrderRow): OrderDetail {
     slotDate: row.slotDate ? utcIsoDate(row.slotDate) : null,
     slotLabel: row.slotLabel,
     itemCount: row.items.length,
+  };
+}
+
+export function toOrderDetail(row: OrderRow): OrderDetail {
+  return {
+    ...toOrderSummary(row),
     lines: row.items.map((item) => ({
       productName: item.productName,
       variantLabel: item.variantLabel,
@@ -36,5 +50,13 @@ export function toOrderDetail(row: OrderRow): OrderDetail {
       city: row.deliveryCity,
       pincode: row.deliveryPincode,
     },
+    events: row.events.map((event) => ({
+      status: event.status,
+      at: event.createdAt.toISOString(),
+      note: event.note,
+    })),
+    // Computed here, from the status, so the button in the interface cannot
+    // offer something the API will refuse.
+    canCancel: customerCanCancel(row.status),
   };
 }

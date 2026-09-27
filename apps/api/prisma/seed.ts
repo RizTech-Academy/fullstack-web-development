@@ -151,13 +151,23 @@ const SLOTS = [
   { label: "7pm – 9pm", startHour: 19, endHour: 21, capacity: 2, sortOrder: 4 },
 ];
 
-// A development login. Never a real password, and never seeded outside
+// Development logins. Never real passwords, and never seeded outside
 // development — the guard on that is in main() below.
 const DEMO_CUSTOMER = {
   name: "Asha Kulkarni",
   email: "asha@example.com",
   phone: "9876543210",
   password: "kirana-dev-password",
+};
+
+// The shopkeeper. A separate account, not a flag on the customer: the person
+// who runs the shop also buys from it, and one account doing both makes every
+// "is this allowed?" question ambiguous.
+const DEMO_ADMIN = {
+  name: "Mahesh Joshi",
+  email: "shop@example.com",
+  phone: "9812345678",
+  password: "kirana-dev-admin",
 };
 
 async function main() {
@@ -170,6 +180,7 @@ async function main() {
   // Order matters: children before parents, or a foreign key refuses the
   // delete. Orders are cleared first because they reference everything.
   await prisma.payment.deleteMany();
+  await prisma.orderEvent.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.slotBooking.deleteMany();
@@ -230,6 +241,16 @@ async function main() {
     },
   });
 
+  await prisma.user.create({
+    data: {
+      name: DEMO_ADMIN.name,
+      email: DEMO_ADMIN.email,
+      phone: DEMO_ADMIN.phone,
+      passwordHash: await hash(DEMO_ADMIN.password, 12),
+      role: Role.ADMIN,
+    },
+  });
+
   console.log({
     categories: await prisma.category.count(),
     products: await prisma.product.count(),
@@ -237,7 +258,8 @@ async function main() {
     slots: await prisma.deliverySlot.count(),
   });
   console.log(
-    `Sign in as ${DEMO_CUSTOMER.email} with the password "${DEMO_CUSTOMER.password}".`,
+    `Customer: ${DEMO_CUSTOMER.email} / "${DEMO_CUSTOMER.password}"\n` +
+      `Shop admin: ${DEMO_ADMIN.email} / "${DEMO_ADMIN.password}"`,
   );
 }
 

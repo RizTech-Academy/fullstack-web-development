@@ -44,6 +44,14 @@ async function AccountMenu() {
 
   return (
     <div className="flex items-center gap-3">
+      {user.role === "ADMIN" && (
+        <Link href="/admin" className="text-sm font-medium">
+          Shop admin
+        </Link>
+      )}
+      <Link href="/orders" className="text-sm font-medium">
+        Orders
+      </Link>
       <span className="hidden text-sm text-gray-500 sm:inline">
         {user.name.split(" ")[0]}
       </span>

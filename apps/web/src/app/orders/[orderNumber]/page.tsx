@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatPaise } from "@kirana/shared";
+import { ORDER_STATUS_LABELS, formatPaise } from "@kirana/shared";
 
+import { CancelOrder } from "@/components/cancel-order";
+import { OrderProgress, OrderStatusBadge } from "@/components/order-status";
 import { ApiError } from "@/lib/api";
-import { fetchOrder } from "@/lib/cart";
+import { fetchOrder } from "@/lib/orders";
 
 export const metadata: Metadata = {
   title: "Your order",
@@ -30,14 +32,23 @@ export default async function OrderPage({ params }: { params: Params }) {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="rounded-lg border border-green-300 bg-green-50 p-6 dark:border-green-800 dark:bg-green-950">
-        <h1 className="text-xl font-semibold">Order placed.</h1>
-        <p className="mt-1 text-sm">
-          Order <strong>{order.orderNumber}</strong>. The shop will pack it and
-          deliver {order.slotLabel ? `${order.slotLabel}` : "soon"}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl font-semibold">{order.orderNumber}</h1>
+        <OrderStatusBadge status={order.status} />
+      </div>
+
+      <OrderProgress status={order.status} />
+
+      {order.status === "CANCELLED" ? (
+        <p className="rounded border border-gray-200 bg-gray-50 p-4 text-sm dark:border-gray-800 dark:bg-gray-900">
+          This order was cancelled. Nothing has been charged.
+        </p>
+      ) : (
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Delivery {order.slotLabel ?? "soon"}
           {order.slotDate ? ` on ${formatDay(order.slotDate)}` : ""}.
         </p>
-      </div>
+      )}
 
       <section>
         <h2 className="mb-2 text-sm font-medium uppercase tracking-wide text-gray-500">
@@ -51,8 +62,7 @@ export default async function OrderPage({ params }: { params: Params }) {
                     product tomorrow, this order still says what was bought. */}
                 <p className="font-medium">{line.productName}</p>
                 <p className="text-gray-500">
-                  {line.variantLabel} × {line.quantity} at{" "}
-                  {formatPaise(line.unitPricePaise)}
+                  {line.variantLabel} × {line.quantity} at {formatPaise(line.unitPricePaise)}
                 </p>
               </div>
               <p className="shrink-0 font-medium">{formatPaise(line.linePaise)}</p>
@@ -68,13 +78,15 @@ export default async function OrderPage({ params }: { params: Params }) {
         </div>
         <div className="flex justify-between">
           <dt className="text-gray-500">Delivery</dt>
-          <dd>
-            {order.deliveryPaise === 0 ? "Free" : formatPaise(order.deliveryPaise)}
-          </dd>
+          <dd>{order.deliveryPaise === 0 ? "Free" : formatPaise(order.deliveryPaise)}</dd>
         </div>
         <div className="flex justify-between border-t border-gray-200 pt-2 text-base font-semibold dark:border-gray-800">
           <dt>
-            {order.paymentMethod === "CASH_ON_DELIVERY" ? "Pay on delivery" : "Paid"}
+            {order.status === "CANCELLED"
+              ? "Cancelled"
+              : order.paymentMethod === "CASH_ON_DELIVERY"
+                ? "Pay on delivery"
+                : "Paid"}
           </dt>
           <dd>{formatPaise(order.totalPaise)}</dd>
         </div>
@@ -102,20 +114,47 @@ export default async function OrderPage({ params }: { params: Params }) {
         </address>
       </section>
 
-      <Link href="/products" className="inline-block text-sm underline">
-        Back to the shop
+      <section className="text-sm">
+        <h2 className="mb-2 font-medium uppercase tracking-wide text-gray-500">
+          History
+        </h2>
+        <ol className="space-y-1 text-gray-600 dark:text-gray-400">
+          {order.events.map((event, index) => (
+            <li key={`${event.status}-${index}`}>
+              <time dateTime={event.at}>{formatMoment(event.at)}</time> —{" "}
+              {ORDER_STATUS_LABELS[event.status]}
+              {event.note && <span className="text-gray-500"> ({event.note})</span>}
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* The API decides, not the interface. `canCancel` comes from the status
+          on the server, so the button cannot offer something it will refuse. */}
+      {order.canCancel && <CancelOrder orderNumber={order.orderNumber} />}
+
+      <Link href="/orders" className="inline-block text-sm underline">
+        All your orders
       </Link>
     </div>
   );
 }
 
 function formatDay(iso: string): string {
-  // The date arrives as a calendar date. Appending a time and a Z keeps it from
-  // being read as local and shifted by a day.
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
     month: "long",
     timeZone: "UTC",
+  });
+}
+
+/** An event is a real instant, so this one is formatted in local time. */
+function formatMoment(iso: string): string {
+  return new Date(iso).toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
   });
 }

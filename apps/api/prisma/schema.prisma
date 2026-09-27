@@ -265,6 +265,7 @@ model Order {
 
   items    OrderItem[]
   payments Payment[]
+  events   OrderEvent[]
 
   placedAt    DateTime?
   packedAt    DateTime?
@@ -276,6 +277,27 @@ model Order {
   @@index([userId, createdAt])
   @@index([status, createdAt])
   @@map("orders")
+}
+
+// Every status change, appended and never updated.
+//
+// The order's own `status` column is where it is *now*; this is how it got
+// there. Without it, "who marked this delivered, and when?" has no answer —
+// and that question always gets asked about the one order that went wrong.
+model OrderEvent {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  status OrderStatus
+  note   String?
+  // Null when the customer did it, or when it was automatic.
+  byUserId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId, createdAt])
+  @@map("order_events")
 }
 
 model OrderItem {
