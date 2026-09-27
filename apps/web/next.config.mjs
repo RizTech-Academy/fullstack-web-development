@@ -4,6 +4,12 @@ const nextConfig = {
   // compiles it itself so a change there is picked up without rebuilding.
   transpilePackages: ["@kirana/shared"],
 
+  // A self-contained server with only the traced dependencies, for the
+  // container image. Hundreds of megabytes smaller than shipping node_modules.
+  output: "standalone",
+  // The monorepo root, so tracing follows packages/shared correctly.
+  outputFileTracingRoot: new URL("../../", import.meta.url).pathname,
+
   // Deliberately no `images.remotePatterns`. Every product picture is a file in
   // public/products/, committed to this repository, so there is no remote host
   // to allow. That is the point: an image loaded from somebody else's server

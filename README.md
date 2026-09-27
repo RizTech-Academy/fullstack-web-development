@@ -26,6 +26,7 @@ module added.
 | `module-13-orders` | 13 · Orders and admin | the order state machine, history, the shop's admin area, inventory |
 | `module-14-payments` | 14 · Payments | intents, signed webhooks, idempotency, refunds, expiring unpaid orders |
 | `module-15-testing` | 15 · Testing | unit, API end-to-end, component and Playwright tests, and CI |
+| `module-16-shipping` | 16 · Shipping | validated configuration, health checks, Dockerfiles, the go-live checklist |
 
 Branches are added as the course is written. To see what a module changed:
 
@@ -124,6 +125,8 @@ control.
 | [0013](docs/decisions/0013-conditional-updates-instead-of-read-then-write.md) | Stock and slots are claimed with a conditional UPDATE, never read-then-write |
 | [0014](docs/decisions/0014-order-status-is-a-state-machine.md) | An order's status is a state machine, written down once |
 | [0015](docs/decisions/0015-only-a-webhook-may-mark-an-order-paid.md) | Only a signed webhook may mark an order paid |
+| [0016](docs/decisions/0016-one-test-runner-and-what-each-layer-is-for.md) | One test runner, and a job for each layer |
+| [0017](docs/decisions/0017-validate-configuration-at-startup.md) | Configuration is validated at startup, and has no fallbacks |
 
 If something here looks like a mistake, check `docs/decisions/` before changing
 it. Most of the surprising parts are deliberate.

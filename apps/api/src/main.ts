@@ -1,4 +1,4 @@
-import { ValidationPipe } from "@nestjs/common";
+import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import cookieParser from "cookie-parser";
 
@@ -21,7 +21,10 @@ async function bootstrap(): Promise<void> {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+    // Validated at startup, so no fallback is needed here. A permissive
+    // fallback is how an API ends up readable by any site on the internet
+    // because somebody forgot a variable.
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
   });
 
@@ -40,7 +43,17 @@ async function bootstrap(): Promise<void> {
   // One error shape for the whole API, so the front end has one code path.
   app.useGlobalFilters(new ApiExceptionFilter());
 
-  await app.listen(process.env.PORT ?? 3001);
+  // Finish in-flight requests before the process exits. Without this a deploy
+  // kills the container mid-request, and for a checkout that means a customer
+  // seeing an error for an order that was actually placed.
+  app.enableShutdownHooks();
+
+  const port = process.env.PORT ?? 3001;
+  // 0.0.0.0, not localhost. Inside a container, binding to localhost means
+  // nothing outside the container can reach it — and the logs look perfect.
+  await app.listen(port, "0.0.0.0");
+
+  new Logger("bootstrap").log(`API listening on ${port} in ${process.env.NODE_ENV} mode`);
 }
 
 void bootstrap();
