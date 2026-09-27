@@ -21,6 +21,7 @@ module added.
 | Branch | Module | State |
 |---|---|---|
 | `module-10-planning` | 10 · Planning | scaffold, schema, shared types, decisions |
+| `module-11-catalogue` | 11 · Catalogue and search | catalogue API, storefront, product pages, search and filters |
 
 Branches are added as the course is written. To see what a module changed:
 
@@ -34,7 +35,7 @@ will leave you in a detached HEAD.
 
     git clone https://github.com/RizTech-Academy/fullstack-web-development.git
     cd fullstack-web-development
-    npm install
+    npm ci
     cp apps/api/.env.example apps/api/.env
     cp apps/web/.env.example apps/web/.env.local
     docker compose up -d
@@ -49,7 +50,16 @@ Then:
 
     apps/
         api/        NestJS — catalogue, cart, orders, auth
+            src/
+                products/     catalogue endpoints
+                categories/
+                prisma/       one shared PrismaService
+            prisma/           schema, migrations, seed
         web/        Next.js — storefront and admin
+            src/
+                app/          routes: (storefront), products/[slug]
+                components/
+                lib/          the typed API client
     packages/
         shared/     types and constants both halves import
     docs/
@@ -65,7 +75,10 @@ Then:
 | [0002](docs/decisions/0002-snapshot-product-details-on-orders.md) | Orders snapshot product details rather than referencing them |
 | [0003](docs/decisions/0003-cart-in-database-not-cookie.md) | The cart lives in the database, not a cookie |
 | [0004](docs/decisions/0004-decrement-stock-at-order-placement.md) | Stock is decremented when an order is placed, not when added to a cart |
+| [0006](docs/decisions/0006-soft-delete-products.md) | Products are deactivated, never deleted |
 | [0009](docs/decisions/0009-show-current-price-at-checkout.md) | Checkout charges the current price and says so |
+| [0011](docs/decisions/0011-no-implicit-conversion-in-validation-pipe.md) | The validation pipe does no implicit conversion |
+| [0012](docs/decisions/0012-no-loading-boundary-above-notfound.md) | No loading boundary above a route that can 404 |
 
 If something here looks like a mistake, check `docs/decisions/` before changing
 it. Most of the surprising parts are deliberate.
